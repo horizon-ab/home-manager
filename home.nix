@@ -56,6 +56,7 @@
       source = ./dotfiles/waybar;
       recursive = true;
     };
+    "fastfetch/config.jsonc".source = ./dotfiles/fastfetch/config.jsonc;
   };
 
   nixGL.packages = nixGL.packages;
@@ -90,6 +91,8 @@
     enable = true;
     systemd.enable = true;
   };
+
+  programs.fastfetch.enable = true;
 
   home.file = {
     # # Building this configuration will create a copy of 'dotfiles/screenrc' in
