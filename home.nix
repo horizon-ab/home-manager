@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  nixGL,
+  ...
+}:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -22,23 +27,10 @@
     cargo
     rustc
     ani-cli
-    thunderbird
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
-
-    # # It is sometimes useful to fine-tune packages, for example, by applying
-    # # overrides. You can do that directly here, just don't forget the
-    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-    # # fonts?
-    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
-
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
+    (config.lib.nixGL.wrap thunderbird)
+    asciiquarium
+    (config.lib.nixGL.wrap zed-editor)
+    (config.lib.nixGL.wrap vesktop)
   ];
 
   programs.fish = {
@@ -60,7 +52,45 @@
   xdg.configFile = {
     "hypr/hyprland.conf".source = ./dotfiles/hypr/hyprland.conf;
     "starship.toml".source = ./dotfiles/jetpack.toml;
+    "waybar" = {
+      source = ./dotfiles/waybar;
+      recursive = true;
+    };
   };
+
+  nixGL.packages = nixGL.packages;
+  nixGL.defaultWrapper = "mesa";
+  nixGL.installScripts = [ "mesa" ];
+
+  programs.kitty = {
+    enable = true;
+    # themeFile = "Ubuntu";
+    package = config.lib.nixGL.wrap pkgs.kitty;
+    shellIntegration.enableFishIntegration = true;
+    shellIntegration.enableBashIntegration = true;
+    settings = {
+      font_size = 11;
+      window_padding_width = "8 8";
+      confirm_os_window_close = -1;
+      enable_audio_bell = "no";
+      allow_remote_control = "yes";
+      listen_on = "unix:/tmp/kitty";
+      scrollback_pager = ''nvim --noplugin -c "set signcolumn=no showtabline=0" -c "silent write! /tmp/kitty_scrollback_buffer | te cat /tmp/kitty_scrollback_buffer - "'';
+    };
+    keybindings = {
+      "kitty_mod+h" = "show_scrollback";
+    };
+  };
+
+  programs.wofi = {
+    enable = true;
+  };
+
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true;
+  };
+
   home.file = {
     # # Building this configuration will create a copy of 'dotfiles/screenrc' in
     # # the Nix store. Activating the configuration will then make '~/.screenrc' a

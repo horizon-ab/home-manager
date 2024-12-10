@@ -12,6 +12,14 @@
       url = "github:nix-community/nixGL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    wallpapers = {
+      url = "github:horizon-ab/wallpapers";
+      flake = false;
+    };
   };
 
   outputs =
@@ -19,13 +27,14 @@
       nixpkgs,
       home-manager,
       nixGL,
+      stylix,
+      wallpapers,
       ...
     }:
     let
       system = "aarch64-linux";
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ nixGL.overlay ];
       };
     in
     {
@@ -34,10 +43,15 @@
 
         # Specify your home configuration modules here, for example,
         # the path to your home.nix.
-        modules = [ ./home.nix ];
+        modules = [
+          ./home.nix
+          ./stylix.nix
+          stylix.homeManagerModules.stylix
+        ];
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
+        extraSpecialArgs = { inherit wallpapers nixGL; };
       };
       formatter.${system} = pkgs.nixfmt-rfc-style;
     };
